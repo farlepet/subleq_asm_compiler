@@ -1,0 +1,21 @@
+Higher-level operations provided by the `compiler`:
+    NOP:
+        Do nothing
+
+    JMP loc:
+        Jump to `loc`
+
+    ADD a, b:
+        Add `b` to `a` and store result in `a`
+
+    MOV a, b:
+        Copy `b` into `a`
+
+    CLR a:
+        Set `a` to zero
+
+    SUB a, b:
+        Subtract `b` from `a` and store result in `a`
+
+    JZ a, loc:
+        Jump to `loc` if `a` == 0

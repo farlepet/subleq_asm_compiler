@@ -1,0 +1,53 @@
+main:
+    mov print_str.str, strptrs$0
+    mov print_str.ret$2, ptr.main.print2
+    jmp print_str
+main.print2:
+    mov print_str.str, strptrs$1
+    mov print_str.ret$2, ptr.main.ret
+    jmp print_str
+main.ret:
+    jmp -1
+
+ptr.main.print2:
+. main.print2
+ptr.main.ret:
+. main.ret
+
+
+
+# Functions:
+
+print_str:
+    mov print_str.prnt$3, print_str.str
+    mov print_str.chk$1, print_str.str
+print_str.prnt:
+    mov 0x101, 0
+    clr 0x100
+    sub print_str.prnt$3, neg1
+    sub print_str.chk$1, neg1
+print_str.chk:
+    jz 0, print_str.ret
+    jmp print_str.prnt
+print_str.ret:
+    jmp -1
+
+print_str.str:
+. 0
+
+
+
+# Global variables:
+neg1:
+. -1
+
+str1:
+. "Hello, World!"
+. 0
+str2:
+. "This is done via a pseudo-function-call!"
+. 0
+
+strptrs:
+. str1
+. str2
