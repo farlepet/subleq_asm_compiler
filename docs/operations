@@ -19,3 +19,6 @@ Higher-level operations provided by the `compiler`:
 
     JZ a, loc:
         Jump to `loc` if `a` == 0
+
+    MUL a, b:
+        Multiply `a` by `b` and store result in `a`

@@ -185,6 +185,35 @@ int op_jz(char *arg1, char *arg2) {
     return 0;
 }
 
+int op_mul(char *arg1, char *arg2) {
+    static int n = 0;
+    /*
+     * _mul:
+     *  CLR _atmpv1
+     *  MOV _atmpv2, arg2
+     * _mov.loop:
+     *  JZ _atmpv2, _mul.end
+     *  ADD _atmpv1, arg1
+     *  DEC _atmpv2
+     *  JMP _mul.loop
+     * _mul.end:
+     *  MOV arg1, _atmpv1
+     */
+    fprintf(out,
+    "_atmpv1, _atmpv1\n" // CLR _atmpv1
+    "_atmpv2, _atmpv2\n%s, _aZ\n_aZ, _atmpv2\n_aZ, _aZ\n" // MOV _atmpv2, arg2
+    "_mul_%d.loop:\n" // Loop label
+    "_aZ, _atmpv2, _mul_%d.end\n" // JZ _atmpv2, end
+    "%s, _aZ\n_aZ, _atmpv1\n_aZ, _aZ\n" // ADD _atmpv1, arg1
+    "_aOne, _atmpv2\n" // DEC _atmpv2
+    "_aZ, _aZ, _mul_%d.loop\n" // JMP loop
+    "_mul_%d.end:\n" // End label
+    "%s, %s\n_atmpv1, _aZ\n_aZ, %s\n_aZ, _aZ\n" // MOV arg1, _atmpv1
+    , arg2, n, n, arg1, n, n, arg1, arg1, arg1);
+    n++;
+    return 0;
+}
+
 ops_t ops[] = {
     { "NOP", 0, op_nop },
     { "JMP", 1, op_jmp },
@@ -192,7 +221,8 @@ ops_t ops[] = {
     { "ADD", 2, op_add },
     { "SUB", 2, op_sub },
     { "JZ" , 2, op_jz  },
-    { "MOV", 2, op_mov }
+    { "MOV", 2, op_mov },
+    { "MUL", 2, op_mul }
 };
 
 int handle_op(char *str) {
@@ -251,4 +281,12 @@ int handle_op(char *str) {
 
 char *end_vars = 
 "_aZ:\n"
+". 0\n"
+"_aOne:\n"
+". 1\n"
+"_aNeg1:\n"
+". -1\n"
+"_atmpv1:\n"
+". 0\n"
+"_atmpv2:\n"
 ". 0\n";

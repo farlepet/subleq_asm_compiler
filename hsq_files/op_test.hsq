@@ -1,18 +1,17 @@
 loop:
-    mov 0x101, hello
+    mul num.a, num.b
+    mov 0x101, num.a
     clr 0x100
-    sub loop$3, neg1
-    sub check$1, neg1
+    mul num.a, num.c
+    mov 0x101, num.a
+    clr 0x100
+    jmp -1
 
-check:
-    jz hello, -1
-    jmp loop
+num.a:
+. 32
+num.b:
+. 2
+num.c:
+. 32
 
-# Variables:
 
-hello:
-. "Hello, World!"
-. 0
-
-neg1:
-. -1
