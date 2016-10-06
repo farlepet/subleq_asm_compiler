@@ -20,5 +20,16 @@ Higher-level operations provided by the `compiler`:
     JZ a, loc:
         Jump to `loc` if `a` == 0
 
+    JLZ a, lob
+        Jump to `loc` if `a` < 0
+
+    JLEZ a, loc
+        Jump to `loc` if `a` <= 0
+        Much faster then JZ
+
     MUL a, b:
         Multiply `a` by `b` and store result in `a`
+
+    DIV a, b:
+        Divide `a` by `b` and store result in `a`
+        NOTE: Currently positive numbers only!!!!

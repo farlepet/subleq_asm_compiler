@@ -27,7 +27,7 @@ print_str.prnt:
     sub print_str.prnt$3, neg1
     sub print_str.chk$1, neg1
 print_str.chk:
-    jz 0, print_str.ret
+    jlez 0, print_str.ret
     jmp print_str.prnt
 print_str.ret:
     jmp -1

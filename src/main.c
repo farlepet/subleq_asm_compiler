@@ -181,7 +181,42 @@ int op_sub(char *arg1, char *arg2) {
 }
 
 int op_jz(char *arg1, char *arg2) {
-    fprintf(out, "_aZ, %s, %s\n", arg1, arg2);
+    static int n = 0;
+    /*
+     * _aZ, arg1, arg2 --> Actually only checks if it is <= 0
+     *
+     * _jz:
+     *  MOV _atmpv1, arg1
+     *  _aZ, _atmpv1, _jz.ltez
+     *  JMP _jz.end
+     * _jz.ltez // Less than or equal to zero
+     *  INC _atmpv1
+     *  _aZ, _atmpv1, _jz.end
+     *  JMP arg2
+     * _jz.end:
+     */
+    op_mov("_atmpv1", arg1);
+    fprintf(out, "_aZ, _atmpv1, _jz%d.ltez\n_aZ, _aZ, _jz%d.end\n_jz%d.ltez:\n"
+    "_aNeg1, _atmpv1\n_aZ, _atmpv1, _jz%d.end\n_aZ, _aZ, %s\n_jz%d.end:\n", n, n, n, n, arg2, n);
+    n++;
+    return 0;
+}
+
+int op_jlz(char *arg1, char *arg2) {
+    /*
+     * _jlz:
+     *  MOV _atmpv1, arg1
+     *  INC _atmpv1
+     *  _aZ, _atmpv1, arg2
+     */
+    op_mov("_atmpv1", arg1);
+    fprintf(out, "_aNeg1, _atmpv1\n_aZ, _atmpv1, %s\n", arg2);
+    return 0;
+}
+
+int op_jlez(char *arg1, char *arg2) {
+    op_mov("_atmpv1", arg1);
+    fprintf(out, "_aZ, _atmpv1, %s\n", arg2);
     return 0;
 }
 
@@ -214,15 +249,47 @@ int op_mul(char *arg1, char *arg2) {
     return 0;
 }
 
+int op_div(char *arg1, char *arg2) {
+    static int n = 0;
+    /*
+     * _div:
+     *  MOV _atmpv2, arg1
+     *  CLR arg1
+     *  JZ _atmpv2, _div.end
+     * _div.loop:
+     *  SUB _atmpv2, arg2
+     *  JLZ _atmpv2, _div.end
+     *  INC arg1
+     *  JLEZ _atmpv2, _div.end
+     *  JMP _div.loop
+     * _div.end:
+     */
+    char tmp[16];
+    op_mov("_atmpv2", arg1); // MOV _atmpv2, arg1
+    op_clr(arg1); // CLR arg2
+    sprintf(tmp, "_div%d.end", n);
+    op_jz("_atmpv2", tmp); // JZ _atmpv2, _div.end
+    fprintf(out, "_div%d.loop:\n%s, _atmpv2\n", n, arg2); // SUB _atmpv2, arg2
+    op_jlz("_atmpv2", tmp); // JLZ _atmpv2, _div.end
+    fprintf(out, "_aNeg1, %s\n", arg1); // INC arg1
+    op_jlez("_atmpv2", tmp); // JLEZ _atmpv2, _div.end
+    fprintf(out, "_aZ, _aZ, _div%d.loop\n_div%d.end:\n", n, n); // JMP _div.loop
+    n++;
+    return 0;
+}
+
 ops_t ops[] = {
-    { "NOP", 0, op_nop },
-    { "JMP", 1, op_jmp },
-    { "CLR", 1, op_clr },
-    { "ADD", 2, op_add },
-    { "SUB", 2, op_sub },
-    { "JZ" , 2, op_jz  },
-    { "MOV", 2, op_mov },
-    { "MUL", 2, op_mul }
+    { "NOP",  0, op_nop  },
+    { "JMP",  1, op_jmp  },
+    { "CLR",  1, op_clr  },
+    { "ADD",  2, op_add  },
+    { "SUB",  2, op_sub  },
+    { "JZ" ,  2, op_jz   },
+    { "JLZ",  2, op_jlz  },
+    { "JLEZ", 2, op_jlez },
+    { "MOV",  2, op_mov  },
+    { "MUL",  2, op_mul  },
+    { "DIV",  2, op_div  }
 };
 
 int handle_op(char *str) {
