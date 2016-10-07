@@ -1,0 +1,77 @@
+NOP:
+    _aZ, _aZ
+
+JMP loc:
+    _aZ, _aZ, loc
+
+ADD arg1, arg2:
+    arg2, _aZ
+    _aZ,  arg1
+    _aZ,  _aZ
+
+MOV arg1, arg2:
+    arg1, arg1
+    arg2, _aZ
+    _aZ,  arg1
+    _aZ,  _aZ
+
+CLR arg1
+    arg1, arg1
+
+SUB arg1, arg2
+    arg2, arg1
+
+JZ arg1, loc:
+    MOV _atmpv1, arg1
+    _aZ, _atmpv1, _jz.ltez
+    JMP _jz.end
+  _jz.ltez:
+    INC _atmpv1
+    _aZ, _atmpv1, _jz.end
+    JMP loc
+  _jz.end:
+
+JLZ arg1, loc:
+    MOV _atmpv1, arg1
+    INC _atmpv1
+    _aZ, _atmpv1, loc
+
+JLEZ arg1, loc:
+    MOV _atmpv2, arg1
+    _aZ, _atmpv1, loc
+
+MUL arg1, arg2:
+    CLR _atmpv1
+    MOV _atmpv2, arg2
+  _mov.loop:
+    JZ _atmpv2, _mul.end
+    ADD _atmpv1, arg1
+    DEC _atmpv2
+    JMP _mul.loop
+  _mul.end:
+    MOV arg1, _atmpv1
+
+DIV arg1, arg2:
+    MOV _atmpv2, arg1
+    CLR arg1
+    JZ _atmpv2, _div.end
+  _div.loop:
+    SUB _atmpv2, arg2
+    JLZ _atmpv2, _div.end
+    INC arg1
+    JLEZ _atmpv2, _div.end
+    JMP _div.loop
+  _div.end:
+
+PUSH arg1:
+    MOV _push.op${0,1,7}, _astack_ptr
+  _push.op:
+    MOV 0, arg1
+    INC _astack_ptr
+
+POP arg1:
+    DEC _astack_ptr
+    MOV _pop.op${0,1,7}, _astack_ptr
+  _pop.op:
+    MOV arg1, 0
+

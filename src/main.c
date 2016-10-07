@@ -8,6 +8,7 @@
 char *infile = NULL;
 char *outfile = NULL;
 int verbose = 0;
+int stack = 0;
 
 static FILE *in  = NULL;
 static FILE *out = NULL;
@@ -29,6 +30,7 @@ typedef struct {
 
 ops_t ops[];
 char *end_vars;
+char *stack_vars;
 
 unsigned line = 0;
 
@@ -78,6 +80,7 @@ int main(int argc, char **argv) {
     }
 
     fprintf(out, "\n%s", end_vars);
+    if(stack) fprintf(out, "\n%s", stack_vars);
 
 
 	fclose(in);
@@ -182,19 +185,6 @@ int op_sub(char *arg1, char *arg2) {
 
 int op_jz(char *arg1, char *arg2) {
     static int n = 0;
-    /*
-     * _aZ, arg1, arg2 --> Actually only checks if it is <= 0
-     *
-     * _jz:
-     *  MOV _atmpv1, arg1
-     *  _aZ, _atmpv1, _jz.ltez
-     *  JMP _jz.end
-     * _jz.ltez // Less than or equal to zero
-     *  INC _atmpv1
-     *  _aZ, _atmpv1, _jz.end
-     *  JMP arg2
-     * _jz.end:
-     */
     op_mov("_atmpv1", arg1);
     fprintf(out, "_aZ, _atmpv1, _jz%d.ltez\n_aZ, _aZ, _jz%d.end\n_jz%d.ltez:\n"
     "_aNeg1, _atmpv1\n_aZ, _atmpv1, _jz%d.end\n_aZ, _aZ, %s\n_jz%d.end:\n", n, n, n, n, arg2, n);
@@ -203,12 +193,6 @@ int op_jz(char *arg1, char *arg2) {
 }
 
 int op_jlz(char *arg1, char *arg2) {
-    /*
-     * _jlz:
-     *  MOV _atmpv1, arg1
-     *  INC _atmpv1
-     *  _aZ, _atmpv1, arg2
-     */
     op_mov("_atmpv1", arg1);
     fprintf(out, "_aNeg1, _atmpv1\n_aZ, _atmpv1, %s\n", arg2);
     return 0;
@@ -222,18 +206,7 @@ int op_jlez(char *arg1, char *arg2) {
 
 int op_mul(char *arg1, char *arg2) {
     static int n = 0;
-    /*
-     * _mul:
-     *  CLR _atmpv1
-     *  MOV _atmpv2, arg2
-     * _mov.loop:
-     *  JZ _atmpv2, _mul.end
-     *  ADD _atmpv1, arg1
-     *  DEC _atmpv2
-     *  JMP _mul.loop
-     * _mul.end:
-     *  MOV arg1, _atmpv1
-     */
+    
     fprintf(out,
     "_atmpv1, _atmpv1\n" // CLR _atmpv1
     "_atmpv2, _atmpv2\n%s, _aZ\n_aZ, _atmpv2\n_aZ, _aZ\n" // MOV _atmpv2, arg2
@@ -251,19 +224,7 @@ int op_mul(char *arg1, char *arg2) {
 
 int op_div(char *arg1, char *arg2) {
     static int n = 0;
-    /*
-     * _div:
-     *  MOV _atmpv2, arg1
-     *  CLR arg1
-     *  JZ _atmpv2, _div.end
-     * _div.loop:
-     *  SUB _atmpv2, arg2
-     *  JLZ _atmpv2, _div.end
-     *  INC arg1
-     *  JLEZ _atmpv2, _div.end
-     *  JMP _div.loop
-     * _div.end:
-     */
+    
     char tmp[16];
     op_mov("_atmpv2", arg1); // MOV _atmpv2, arg1
     op_clr(arg1); // CLR arg2
@@ -278,10 +239,42 @@ int op_div(char *arg1, char *arg2) {
     return 0;
 }
 
+int op_push(char *arg1) {
+    stack = 1; // Enable stack functionality
+    static int n = 0;
+    
+    char tmp[13];
+    sprintf(tmp, "_push%03d.op$0", n);
+    op_mov(tmp, "_astack_ptr"); tmp[12] = '1';
+    op_mov(tmp, "_astack_ptr"); tmp[12] = '7';
+    op_mov(tmp, "_astack_ptr");
+    fprintf(out, "_push%03d.op:\n", n);
+    op_mov("0", arg1);
+    fprintf(out, "_aNeg1, _astack_ptr\n");
+    n++;
+    return 0;
+}
+
+int op_pop(char *arg1) {
+    stack = 1; // Enable stack functionality
+    static int n = 0;
+    
+    char tmp[12];
+    sprintf(tmp, "_pop%03d.op$3", n);
+    fprintf(out, "_aOne, _astack_ptr\n");
+    op_mov(tmp, "_astack_ptr");
+    fprintf(out, "_pop%03d.op:\n", n);
+    op_mov(arg1, "0");
+    n++;
+    return 0;
+}
+
 ops_t ops[] = {
     { "NOP",  0, op_nop  },
     { "JMP",  1, op_jmp  },
     { "CLR",  1, op_clr  },
+    { "POP",  1, op_pop  },
+    { "PUSH", 1, op_push },
     { "ADD",  2, op_add  },
     { "SUB",  2, op_sub  },
     { "JZ" ,  2, op_jz   },
@@ -357,3 +350,12 @@ char *end_vars =
 ". 0\n"
 "_atmpv2:\n"
 ". 0\n";
+
+// Small stack implementation:
+char *stack_vars =
+"_astack_base:\n"
+". _astack\n"
+"_astack_ptr:\n"
+". _astack\n"
+"_astack:\n"
+". \"                                                                                          \"\n";

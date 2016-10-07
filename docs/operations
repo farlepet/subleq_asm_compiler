@@ -33,3 +33,9 @@ Higher-level operations provided by the `compiler`:
     DIV a, b:
         Divide `a` by `b` and store result in `a`
         NOTE: Currently positive numbers only!!!!
+
+    PUSH a:
+        Push `a` onto the stack
+
+    POP a:
+        Pop the uppermost value on the stack into `a`
