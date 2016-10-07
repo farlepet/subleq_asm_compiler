@@ -75,3 +75,15 @@ POP arg1:
   _pop.op:
     MOV arg1, 0
 
+CALL arg1:
+    PUSH _call.end.ptr
+    JMP arg1
+  _call.end.ptr:
+. _call.end
+  _call.end:
+
+RET:
+    POP _atmpv1
+    MOV _ret.jmp$2, _atmpv1
+  _ret.jmp:
+    JMP -1

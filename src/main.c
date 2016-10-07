@@ -269,8 +269,32 @@ int op_pop(char *arg1) {
     return 0;
 }
 
+int op_call(char *arg1) {
+    static int n = 0;
+    char tmp[17];
+    sprintf(tmp, "_call%03d.end.ptr", n);
+    op_push(tmp);
+    op_jmp(arg1);
+    fprintf(out, "_call%03d.end.ptr:\n. _call%03d.end\n_call%03d.end:\n", n, n, n);
+    n++;
+    return 0;
+}
+
+int op_ret() {
+    static int n = 0;
+    op_pop("_atmpv1");
+    char tmp[12];
+    sprintf(tmp, "_ret%03d.jmp$2", n);
+    op_mov(tmp, "_atmpv1");
+    fprintf(out, "_ret%03d.jmp:\n_aZ, _aZ, -1", n);
+    n++;
+    return 0;
+}
+
 ops_t ops[] = {
     { "NOP",  0, op_nop  },
+    { "RET",  0, op_ret  },
+    { "CALL", 1, op_call },
     { "JMP",  1, op_jmp  },
     { "CLR",  1, op_clr  },
     { "POP",  1, op_pop  },

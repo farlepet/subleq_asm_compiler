@@ -39,3 +39,9 @@ Higher-level operations provided by the `compiler`:
 
     POP a:
         Pop the uppermost value on the stack into `a`
+
+    CALL a:
+        Push return address to stack, then jump to`a`
+
+    RET:
+        Pop return address from stack, then jump to returned address
