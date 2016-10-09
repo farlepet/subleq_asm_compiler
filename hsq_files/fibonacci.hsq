@@ -1,0 +1,28 @@
+loop:
+    # print a
+    mov 0x101, a
+    clr 0x100
+
+    add a, b
+    # Swap a and b
+    mov tmp, a
+    mov a, b
+    mov b, tmp
+
+    num.1, n_terms
+    jlez n_terms, -1
+    jmp loop
+
+# Variables:
+n_terms:
+. 32
+
+a:
+. 0
+b:
+. 1
+tmp:
+. 0
+
+num.1:
+. 1

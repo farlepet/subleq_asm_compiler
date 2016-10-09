@@ -243,11 +243,10 @@ int op_push(char *arg1) {
     stack = 1; // Enable stack functionality
     static int n = 0;
     
-    char tmp[13];
-    sprintf(tmp, "_push%03d.op$0", n);
-    op_mov(tmp, "_astack_ptr"); tmp[12] = '1';
-    op_mov(tmp, "_astack_ptr"); tmp[12] = '7';
-    op_mov(tmp, "_astack_ptr");
+    fprintf(out, "_push%03d.op$0, _push%03d.op$0\n_push%03d.op$1, _push%03d.op$1\n_push%03d.op$7, _push%03d.op$7\n"
+    "_astack_ptr, _aZ\n"
+    "_aZ, _push%03d.op$0\n_aZ, _push%03d.op$1\n_aZ, _push%03d.op$7\n"
+    "_aZ, _aZ\n", n, n, n, n, n, n, n, n, n);
     fprintf(out, "_push%03d.op:\n", n);
     op_mov("0", arg1);
     fprintf(out, "_aNeg1, _astack_ptr\n");

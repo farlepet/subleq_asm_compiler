@@ -1,0 +1,33 @@
+#
+# funcs.hsq
+# Various functions
+#
+
+print_str:
+    mov print_str.prnt$3, print_str.str
+    mov print_str.chk$3, print_str.str
+print_str.prnt:
+    mov 0x101, 0
+    clr 0x100
+    sub print_str.prnt$3, neg1
+    sub print_str.chk$3, neg1
+print_str.chk:
+    jlez 0, print_str.ret
+    jmp print_str.prnt
+print_str.ret:
+    ret
+    # jmp print_str.err
+
+print_str.str:
+. 0
+
+print_str.err:
+    mov 0x101, print_str.errno
+    clr 0x200
+    jmp -1
+
+print_str.errno:
+. 0xDEAF
+
+neg1:
+. -1

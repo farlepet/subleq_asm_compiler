@@ -1,0 +1,26 @@
+#
+# main.hsq
+# Main program
+#
+
+main:
+    mov print_str.str, ptrs.strs.str1
+    call print_str
+    mov print_str.str, ptrs.strs.str2
+    call print_str
+    jmp -1
+
+strs.str1:
+. "This is a test string!"
+. 0x0A
+. 0x00
+strs.str2:
+. "This is another test string!"
+. 0x0A
+. 0x00
+
+ptrs.strs.str1:
+. strs.str1
+ptrs.strs.str2:
+. strs.str2
+
