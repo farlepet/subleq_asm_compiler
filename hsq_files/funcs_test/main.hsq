@@ -4,23 +4,125 @@
 #
 
 main:
-    mov print_str.str, ptrs.strs.str1
+    mov print_str.str, ptrs.strs.prompt
     call print_str
-    mov print_str.str, ptrs.strs.str2
+
+    #mov comp_strs.str1, ptrs.strs.test1
+    #mov comp_strs.str2, ptrs.strs.test2
+    #call comp_strs
+    #mov 0x101, comp_strs.equal
+    #clr 0x100
+    #jmp -1
+
+main.input_loop:
+    jlez 0x102, main.input_loop
+    mov 0x101, 0x103
+    clr 0x100
+    mov char.in, 0x103
+    clr 0x102
+
+main.inputchar:
+    mov strs.input, char.in # Add character to input string
+    neg1, main.inputchar$0
+    neg1, main.inputchar$1
+    neg1, main.inputchar$7
+    neg1, main.handleinput$0
+    neg1, main.handleinput$1
+    neg1, main.handleinput$7
+
+    #mov print_str.str, ptrs.strs.input
+    #call print_str
+    #mov 0x101, char.newline
+    #clr 0x100
+
+    # if char == '\n'
+    char.newline, char.in
+    jz char.in, main.handleinput
+
+    #char.end, char.in
+    #jz char.in, main.end
+    jmp main.input_loop
+
+main.handleinput:
+    mov strs.input$-1, zero
+
+    mov print_str.str, ptrs.strs.typed
     call print_str
+    mov print_str.str, ptrs.strs.input
+    call print_str
+    mov 0x101, char.newline
+    clr 0x100
+
+    mov comp_strs.str1, ptrs.strs.input
+    mov comp_strs.str2, ptrs.strs.quit
+    call comp_strs
+    _tmp, _tmp
+    comp_strs.equal, _tmp
+    jlz _tmp, main.quit
+
+    _tmp, _tmp
+    clr main.inputchar$0
+    clr main.inputchar$1
+    clr main.inputchar$7
+    clr main.handleinput$0
+    clr main.handleinput$1
+    clr main.handleinput$7
+    ptrs.strs.input, _tmp
+    _tmp, main.inputchar$0
+    _tmp, main.inputchar$1
+    _tmp, main.inputchar$7
+    neg1, _tmp
+    _tmp, main.handleinput$0
+    _tmp, main.handleinput$1
+    _tmp, main.handleinput$7
+
+    jmp main
+    
+main.quit:
+    mov print_str.str, ptrs.strs.quit
+    call print_str
+
+main.end:
     jmp -1
 
-strs.str1:
-. "This is a test string!"
-. 0x0A
+strs.prompt:
+. "Type something [type 'QUIT' to quit]"
+. 0x3A
+. 0x20
 . 0x00
-strs.str2:
-. "This is another test string!"
-. 0x0A
+strs.typed:
+. "You typed"
+. 0x3A
+. 0x20
 . 0x00
 
-ptrs.strs.str1:
-. strs.str1
-ptrs.strs.str2:
-. strs.str2
+strs.quit:
+. "QUIT"
+. 0x00
+strs.test2:
+. "TEST"
+. 0x00
+strs.input:
+. "                                        "
+. 0
 
+
+ptrs.strs.prompt:
+. strs.prompt
+ptrs.strs.typed:
+. strs.typed
+
+ptrs.strs.quit:
+. strs.quit
+ptrs.strs.test2:
+. strs.test2
+ptrs.strs.input:
+. strs.input
+
+char.in:
+. " "
+char.end:
+. "Q"
+
+_tmp:
+. 0

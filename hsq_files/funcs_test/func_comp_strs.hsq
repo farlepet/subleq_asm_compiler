@@ -1,0 +1,41 @@
+#
+# comp_strs: compare if two strings are equal. Result is stored in `comp_strs.equal`
+#
+
+comp_strs:
+    clr comp_strs.equal
+    mov comp_strs.mv1$3, comp_strs.str1
+    mov comp_strs.mv2$3, comp_strs.str2
+comp_strs.loop:
+comp_strs.mv1:
+    mov comp_strs.cmpch1, 0
+comp_strs.mv2:
+    mov comp_strs.cmpch2, 0
+    comp_strs.cmpch2, comp_strs.cmpch1
+    jz comp_strs.cmpch1, comp_strs.continue
+    jmp comp_strs.neq
+comp_strs.continue:
+    jz comp_strs.cmpch2, comp_strs.eq
+    neg1, comp_strs.mv1$3
+    neg1, comp_strs.mv2$3
+    jmp comp_strs.loop
+
+comp_strs.eq:
+    neg1, comp_strs.equal
+comp_strs.neq:
+    ret
+    
+
+comp_strs.cmpch1:
+. 0
+comp_strs.cmpch2:
+. 0
+
+comp_strs.equal:
+. 0
+
+comp_strs.str1:
+. 0
+comp_strs.str2:
+. 0
+

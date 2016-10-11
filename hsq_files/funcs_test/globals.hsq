@@ -1,0 +1,12 @@
+neg1:
+. -1
+one:
+. 1
+
+char.newline:
+. 0x0A
+char.vert:
+. "|"
+
+zero:
+. 0

@@ -1,6 +1,5 @@
 #
-# funcs.hsq
-# Various functions
+# print_str: print out the string in `print_str.str` to 0x101
 #
 
 print_str:
@@ -29,5 +28,4 @@ print_str.err:
 print_str.errno:
 . 0xDEAF
 
-neg1:
-. -1
+
