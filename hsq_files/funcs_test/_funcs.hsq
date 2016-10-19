@@ -1,0 +1,212 @@
+#
+# main.hsq
+# Main program
+#
+
+main:
+    mov print_str.str, ptrs.strs.prompt
+    call print_str
+
+    #mov comp_strs.str1, ptrs.strs.test1
+    #mov comp_strs.str2, ptrs.strs.test2
+    #call comp_strs
+    #mov 0x101, comp_strs.equal
+    #clr 0x100
+    #jmp -1
+
+main.input_loop:
+    jlez 0x102, main.input_loop
+    mov 0x101, 0x103
+    clr 0x100
+    mov char.in, 0x103
+    clr 0x102
+
+main.inputchar:
+    mov strs.input, char.in # Add character to input string
+    neg1, main.inputchar$0
+    neg1, main.inputchar$1
+    neg1, main.inputchar$7
+    neg1, main.handleinput$0
+    neg1, main.handleinput$1
+    neg1, main.handleinput$7
+
+    #mov print_str.str, ptrs.strs.input
+    #call print_str
+    #mov 0x101, char.newline
+    #clr 0x100
+
+    # if char == '\n'
+    char.newline, char.in
+    jz char.in, main.handleinput
+
+    #char.end, char.in
+    #jz char.in, main.end
+    jmp main.input_loop
+
+main.handleinput:
+    mov strs.input$-1, zero
+
+    mov print_str.str, ptrs.strs.typed
+    call print_str
+    mov print_str.str, ptrs.strs.input
+    call print_str
+    mov 0x101, char.newline
+    clr 0x100
+
+    mov comp_strs.str1, ptrs.strs.input
+    mov comp_strs.str2, ptrs.strs.quit
+    call comp_strs
+    _tmp, _tmp
+    comp_strs.equal, _tmp
+    jlz _tmp, main.quit
+
+    _tmp, _tmp
+    clr main.inputchar$0
+    clr main.inputchar$1
+    clr main.inputchar$7
+    clr main.handleinput$0
+    clr main.handleinput$1
+    clr main.handleinput$7
+    ptrs.strs.input, _tmp
+    _tmp, main.inputchar$0
+    _tmp, main.inputchar$1
+    _tmp, main.inputchar$7
+    neg1, _tmp
+    _tmp, main.handleinput$0
+    _tmp, main.handleinput$1
+    _tmp, main.handleinput$7
+
+    jmp main
+    
+main.quit:
+    mov print_str.str, ptrs.strs.quit
+    call print_str
+
+main.end:
+    jmp -1
+
+strs.prompt:
+. "Type something [type 'QUIT' to quit]"
+. 0x3A
+. 0x20
+. 0x00
+strs.typed:
+. "You typed"
+. 0x3A
+. 0x20
+. 0x00
+
+strs.quit:
+. "QUIT"
+. 0x00
+strs.test2:
+. "TEST"
+. 0x00
+strs.input:
+. "                                        "
+. 0
+
+
+ptrs.strs.prompt:
+. strs.prompt
+ptrs.strs.typed:
+. strs.typed
+
+ptrs.strs.quit:
+. strs.quit
+ptrs.strs.test2:
+. strs.test2
+ptrs.strs.input:
+. strs.input
+
+char.in:
+. " "
+char.end:
+. "Q"
+
+_tmp:
+. 0
+#
+# comp_strs: compare if two strings are equal. Result is stored in `comp_strs.equal`
+#
+
+comp_strs:
+    clr comp_strs.equal
+    mov comp_strs.mv1$3, comp_strs.str1
+    mov comp_strs.mv2$3, comp_strs.str2
+comp_strs.loop:
+comp_strs.mv1:
+    mov comp_strs.cmpch1, 0
+comp_strs.mv2:
+    mov comp_strs.cmpch2, 0
+    comp_strs.cmpch2, comp_strs.cmpch1
+    jz comp_strs.cmpch1, comp_strs.continue
+    jmp comp_strs.neq
+comp_strs.continue:
+    jz comp_strs.cmpch2, comp_strs.eq
+    neg1, comp_strs.mv1$3
+    neg1, comp_strs.mv2$3
+    jmp comp_strs.loop
+
+comp_strs.eq:
+    neg1, comp_strs.equal
+comp_strs.neq:
+    ret
+    
+
+comp_strs.cmpch1:
+. 0
+comp_strs.cmpch2:
+. 0
+
+comp_strs.equal:
+. 0
+
+comp_strs.str1:
+. 0
+comp_strs.str2:
+. 0
+
+#
+# print_str: print out the string in `print_str.str` to 0x101
+#
+
+print_str:
+    mov print_str.prnt$3, print_str.str
+    mov print_str.chk$3, print_str.str
+print_str.prnt:
+    mov 0x101, 0
+    clr 0x100
+    sub print_str.prnt$3, neg1
+    sub print_str.chk$3, neg1
+print_str.chk:
+    jlez 0, print_str.ret
+    jmp print_str.prnt
+print_str.ret:
+    ret
+    # jmp print_str.err
+
+print_str.str:
+. 0
+
+print_str.err:
+    mov 0x101, print_str.errno
+    clr 0x200
+    jmp -1
+
+print_str.errno:
+. 0xDEAF
+
+
+neg1:
+. -1
+one:
+. 1
+
+char.newline:
+. 0x0A
+char.vert:
+. "|"
+
+zero:
+. 0

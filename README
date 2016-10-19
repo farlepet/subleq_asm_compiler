@@ -4,3 +4,5 @@ subleq_asm_compiler
 A basic compiler generating subleq assembly from higher-lever operations.
 
 For more information, read the files in the `docs` directory
+
+Assembler can be found here: https://github.com/farlepet/subleq_assembler
