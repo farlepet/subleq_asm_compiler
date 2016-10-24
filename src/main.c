@@ -9,6 +9,7 @@ char *infile = NULL;
 char *outfile = NULL;
 int verbose = 0;
 int stack = 0;
+int clean_out = 0;
 
 static FILE *in  = NULL;
 static FILE *out = NULL;
@@ -57,7 +58,8 @@ int main(int argc, char **argv) {
 	while(fgets(str, 1024, in)) {
         line++;
 		char *s = str;
-        while(*s == ' ' || *s == '\t') s++;
+        while(isspace(*s)) s++;
+        if(clean_out && *s == '#') continue; // Clean output: no comments
         int ln = strlen(s);
         if(s[ln-1] == '\n') s[ln-1] = 0;
         // Convert entire line to uppercase
@@ -119,6 +121,10 @@ void handle_opts(int argc, char **argv) {
                     verbose = 1;
                     break;
 
+                case 'c':
+                    clean_out = 1;
+                    break;
+
                 default:
                     printf("Invalid option: %s\n", argv[i]);
                     usage(1);
@@ -134,12 +140,13 @@ void handle_opts(int argc, char **argv) {
 
 void usage(int retval) {
 	puts(
-    "USAGE: osic-asm [OPTIONS] -i infile -o outfile\n"
+    "USAGE: subleq_asm_assembler [OPTIONS] -i infile -o outfile\n"
 	"  OPTIONS:\n"
 	"    -h: Show this help message.\n"
 	"    -i: Source file to assemble.\n"
 	"    -o: Output binary file.\n"
-    "    -v: Verbose (include comments indicating operations).\n");
+    "    -v: Verbose (include comments indicating operations).\n"
+    "    -c: Clean output: no comments.\n");
 	exit(retval);
 }
 
