@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
         {
             if(s[i] == '#') comment = 1;
             else if(s[i] == ':' && comment == 0) label = 1; 
-            s[i] = toupper(s[i]);
+            //s[i] = toupper(s[i]);
         }
         if(!label) {
             int r = handle_op(s);
@@ -324,7 +324,9 @@ int handle_op(char *str) {
     int idx = -1;
     for(i = 0; i < (sizeof(ops) / sizeof(ops[0])); i++) {
         
-        if(strstr(str, ops[i].op_name) == str) {
+        if(!strncasecmp(str, ops[i].op_name, strlen(ops[i].op_name))) {//strcasestr(str, ops[i].op_name) == str) {
+            int nch = strlen(ops[i].op_name);
+            if(!isspace(str[nch]) && str[nch] != '\0') continue; // There are more characters in this word
             idx = i;
             break;
         }
